@@ -1,23 +1,21 @@
 import os
 from langchain_mistralai import MistralAIEmbeddings
 from langchain_mistralai import ChatMistralAI
+from pydantic_settings import BaseSettings
 #from langchain_openai import ChatOpenAI
 
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-if not MISTRAL_API_KEY:
-    raise ValueError("Задайте MISTRAL_API_KEY в переменной окружения")
-if not OPENROUTER_API_KEY:
-    raise ValueError("Задайте OPENROUTER_API_KEY в переменной окружения")
+class Settings(BaseSettings):
+    MISTRAL_API_KEY: str = None
+    OPENROUTER_API_KEY: str = None
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
 
-EMBEDDING_MODEL = MistralAIEmbeddings(api_key=MISTRAL_API_KEY, model="mistral-embed",)
-# Альтернатива: EMBEDDING_MODEL = SentenceTransformersEmbeddings(model_name="all-MiniLM-L6-v2")
+settings = Settings()
 
 # Конфигурация LLM для разных режимов
 LLM_CONFIG = {
-    "learn": ChatMistralAI(api_key=MISTRAL_API_KEY, model="mistral-medium-latest"),
-    "latest": ChatMistralAI(api_key=MISTRAL_API_KEY, model="mistral-medium-latest")
+    "classic": ChatMistralAI(api_key=settings.MISTRAL_API_KEY, model="mistral-medium-latest"),
+    "pro": ChatMistralAI(api_key=settings.MISTRAL_API_KEY, model="mistral-large-latest")
 }
-
-CHROMA_DB_PATH = "../chroma_db"

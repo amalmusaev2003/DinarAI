@@ -9,22 +9,28 @@ from logging_config import logger
 def search_web(query: str, llm: BaseChatModel) -> Tuple[str, List[str]]:
     try:
         logger.info(f"Начало веб-поиска по запросу: {query}")
-        search = DuckDuckGoSearchResults(output_format="list", num_results=15)
-
-        prompt_template = """
-        Ты — помощник, который кратко суммирует информацию. На основе следующих результатов поиска:
-        {search_results}
-        Подробно ответь на вопрос: {query}
+        refine_prompt_template = """
+        Ты — эксперт по оптимизации поисковых запросов для веб-поиска. На основе исходного вопроса пользователя:
+        "{query}"
+        Составь уточненный поисковый запрос, который:
+        - Сфокусирован на ключевых аспектах вопроса.
+        - Добавляет релевантные ключевые слова (например, "исламский банкинг", "услуги", "Россия", "2025").
+        - Предпочитает русскоязычные результаты (добавь "site:.ru", если применимо).
+        Верни только сам запрос, без пояснений.
         """
+        refine_prompt = PromptTemplate(template=refine_prompt_template, input_variables=["query"])
+        refine_chain = refine_prompt | llm
 
-        prompt = PromptTemplate(template=prompt_template, input_variables=["search_results", "query"])
+        logger.debug("Генерация уточненного запроса...")
+        refined_query = refine_chain.invoke({"query": query}).content.strip()
+        logger.info(f"Уточненный запрос: {refined_query}")
 
-        chain = prompt | llm
+        search = DuckDuckGoSearchResults(output_format="list", num_results=10)
+        logger.debug(f"Выполнение поиска через DuckDuckGo: {refined_query}")
+        search_results = search.run(refined_query)
+        logger.debug(f"Сырые результаты поиска: {search_results}")
+        logger.debug(f"Полученные результаты поиска: {search_results[:200]}...")
 
-        logger.debug(f"Выполнение поиска через DuckDuckGo: {query}")
-        search_results = search.run(query)
-        logger.debug(f"Полученные результаты поиска: {search_results}")
-        
         if not search_results:
             logger.warning("Поиск не дал результатов")
             return "Не удалось получить результаты поиска", []
@@ -36,15 +42,22 @@ def search_web(query: str, llm: BaseChatModel) -> Tuple[str, List[str]]:
             f"Источник: {result['title']}\n{result['snippet']}"
             for result in search_results
         ])
-        
+
+        prompt_template = """
+        Ты — помощник, который кратко суммирует информацию. На основе следующих результатов поиска:
+        {search_results}
+        Подробно ответь на вопрос: {query}
+        """
+        prompt = PromptTemplate(template=prompt_template, input_variables=["search_results", "query"])
+        chain = prompt | llm
+
         logger.debug("Начало суммирования результатов")
         response = chain.invoke({"search_results": formatted_results, "query": query})
 
         summary = response.content if hasattr(response, 'content') else str(response)
         summary = summary.strip()
-        
+
         logger.info("Поиск и суммаризация успешно завершены")
-        
         return summary, urls
 
     except Exception as e:

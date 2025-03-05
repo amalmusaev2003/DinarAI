@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Union, Dict
 
 class QueryRequest(BaseModel):
-    user_id: str
+    chat_id: int
     question: str
 
 class QueryResponse(BaseModel):
