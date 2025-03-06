@@ -1,5 +1,5 @@
-import logging
 import sys
+import logging
 
 def setup_logging(level=logging.INFO):
     formatter = logging.Formatter(
