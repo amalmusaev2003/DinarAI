@@ -7,12 +7,12 @@ from config import LLM_CONFIG
 
 class LLMService:
     def generate_response(self, question: str, search_results: List[str], chat_history: str) -> Tuple[str, List[str]]:
-        context_text = "\n\n".join(
-            [
-                f"Источник {i+1} ({result['url']}):\n{result['content']}"
-                for i, result in enumerate(search_results)
-            ]
-        )
+        source_texts = [
+            f"Источник {i+1} ({result['url']}):\n{result['content']}"
+            for i, result in enumerate(search_results)
+        ]
+
+        context = "\n\n".join(source_texts)
 
         sources = [result['url'] for result in search_results]
 
@@ -25,9 +25,9 @@ class LLMService:
         )
 
         chain = prompt | LLM_CONFIG["pro"]
-        answer = chain.invoke({"search_results": context_text, "chat_history": chat_history, "question": question})
+        answer = chain.invoke({"search_results": context, "chat_history": chat_history, "question": question})
 
         final_answer = answer.content if hasattr(answer, 'content') else str(answer)
         logger.info(f"Ответ сформирован для вопроса: {question}")
 
-        return final_answer, sources
+        return final_answer, source_texts, sources

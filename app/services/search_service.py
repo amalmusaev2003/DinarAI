@@ -21,6 +21,7 @@ class SearchService:
                     {
                         "title": result.get("title", ""),
                         "url": result.get("url", ""),
+                        "relevance_score": result.get("score", 0),
                         "content": result.get("content", ""),
                     }
                 )

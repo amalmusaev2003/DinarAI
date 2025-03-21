@@ -19,7 +19,7 @@ class ContextService:
             logger.error(f"Ошибка при подключении к Redis: {e}")
             raise
     
-    def _summarize_chat_history(self, chat_history: list[tuple]) -> str:
+    def _summarize_chat_history(self, chat_history: list) -> str:
         if not chat_history:
             return "Диалог пуст."
 
