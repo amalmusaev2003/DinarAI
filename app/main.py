@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from utils.question_validator import is_islamic_finance_related
+from utils.topic_classifier import classify_question
 from services.llm_service import LLMService
 from services.search_service import SearchService
 from services.sort_source_service import SortSourceService
@@ -23,7 +23,7 @@ def root():
 async def chat(request: QueryRequest):
     logger.info(f"Обработка запроса от chat_id {request.chat_id}: {request.question}")
 
-    if not is_islamic_finance_related(request.question):
+    if classify_question(request.question).category == "other":
         answer = "Извините, я могу отвечать только на вопросы, связанные с исламским финансированием. " \
                  "Пожалуйста, переформулируйте ваш вопрос или задайте вопрос, относящийся к этой теме."
         return QueryResponse(answer=answer, source_text=[], sources=[])
