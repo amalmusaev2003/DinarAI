@@ -4,11 +4,11 @@ from langchain.prompts import PromptTemplate
 
 from logger import logger
 from config.settings import settings
-from utils.llm_initializer import get_mistral_llm
+from utils.llm_initializer import get_openrouter_llm
 
 
-llm_settings = settings.mistral
-llm = get_mistral_llm(llm_settings.api_key, llm_settings.medium_model)
+llm_settings = settings.openrouter
+llm = get_openrouter_llm(llm_settings.api_key, "meta-llama/llama-4-scout:free")
 
 class ContextService:
     def __init__(self):
@@ -22,6 +22,7 @@ class ContextService:
             )
         except Exception as e:
             logger.error(f"Redis connection error: {e}")
+            exit(1)
 
     def _summarize_chat_history(self, chat_history: list) -> str:
         if not chat_history:
@@ -47,12 +48,12 @@ class ContextService:
             context_history = []
         return context_history
 
-    def get_summarized_chat_history(self, chat_id: int) -> str:
+    def get_summarized_chat_history(self, chat_id: int, messages: int) -> str:
         context_history = self.get_chat_history(chat_id)
         if not context_history:
             return "Диалог пуст."
         
-        chat_summary = self._summarize_chat_history(context_history[-5:])
+        chat_summary = self._summarize_chat_history(context_history[-messages:])
         return chat_summary
     
     def add_data_to_chat_history(self,  chat_id: int, question: str, answer: str) -> None:

@@ -10,7 +10,7 @@ class MistralSettings(BaseSettings):
 
 class OpenRouterSettings(BaseSettings):
     api_key: str = os.getenv("OPENROUTER_API_KEY", "")
-    regular_model: str = "google/gemini-2.0-flash-exp:free"
+    model: str = "google/gemini-2.0-flash-exp:free"
 
 class RedisSettings(BaseSettings):
     host: str = os.getenv("REDIS_HOST", "localhost")
