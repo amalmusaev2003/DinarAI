@@ -14,10 +14,8 @@ class ContextService:
     def __init__(self):
         try:
             redis_settings = settings.redis
-            self.redis_client = redis.Redis(
-                host=redis_settings.host,
-                port=redis_settings.port,
-                db=redis_settings.db,
+            self.redis_client = redis.from_url(
+                f"redis://{redis_settings.host}:{redis_settings.port}/{redis_settings.db}",
                 decode_responses=True
             )
         except Exception as e:
