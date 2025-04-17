@@ -13,9 +13,7 @@ class OpenRouterSettings(BaseSettings):
     model: str = "google/gemini-2.0-flash-exp:free"
 
 class RedisSettings(BaseSettings):
-    host: str = os.getenv("REDIS_HOST", "localhost")
-    port: int = int(os.getenv("REDIS_PORT", "6379"))
-    db: int = int(os.getenv("REDIS_DB", "0"))
+    url: str = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 class TavilySettings(BaseSettings):
     api_key: str = os.getenv("TAVILY_API_KEY", "")
