@@ -16,7 +16,7 @@ web_search_service = WebSearchService()
 vector_store_service = VectorStoreService()
 
 class Assistant():
-    def answer_to_query(self, chat_id: int, question: str) -> Tuple[str, list, Optional[list]]:
+    def answer_to_query(self, chat_id: int, question: str) -> Tuple[str, list, list]:
         logger.info(f"Question processing running...")
 
         chat_history = context_service.get_summarized_chat_history(chat_id)
@@ -28,13 +28,12 @@ class Assistant():
                 answer = "Извините, я могу отвечать только на вопросы, связанные с исламским финансированием. " \
                         "Пожалуйста, переформулируйте ваш вопрос или задайте вопрос, относящийся к этой теме."
                 logger.info(f"Question is out of topic")
-                return answer, [], None
-
+                return answer, [], []
             if classify_question_category(question_with_history).category == "static":
                 retrieved_info = vector_store_service.search_relevant_docs(question, k=5, search_type="similarity")
                 answer, source_text = llm_service.generate_response_from_db(question_with_history, retrieved_info)
                 context_service.add_data_to_chat_history(chat_id, question, answer)
-                return answer, source_text, None
+                return answer, source_text, []
             else:
                 search_results = web_search_service.web_search(question)
                 retrieved_info = web_search_service.sort_sources(question, search_results)
@@ -42,4 +41,4 @@ class Assistant():
                 context_service.add_data_to_chat_history(chat_id, question, answer)
                 return answer, source_text, urls
         except HTTPException:
-            return "Произошла ошибка при обработке вашего вопроса. Пожалуйста, попробуйте еще раз позже.", [], None
+            return "Произошла ошибка при обработке вашего вопроса. Пожалуйста, попробуйте еще раз позже.", [], []

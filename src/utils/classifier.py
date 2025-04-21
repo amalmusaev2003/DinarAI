@@ -3,12 +3,12 @@ from langchain.prompts import PromptTemplate
 
 from logger import logger
 from config.settings import settings
-from utils.llm_initializer import get_openrouter_llm
+from utils.llm_initializer import get_openaicomp_model
 from schemas.query import QuestionTopicClassification, QuestionCategoryClassification
 
 
-llm_settings = settings.openrouter
-llm = get_openrouter_llm(llm_settings.api_key, "google/gemini-2.0-flash-exp:free", temperature=0)
+llm_settings = settings.openai_comp
+llm = get_openaicomp_model(llm_settings.api_key, llm_settings.model, temperature=0)
 
 def classify_question_topic(question: str, context: str) -> QuestionTopicClassification:
     prompt_template = PromptTemplate.from_template(

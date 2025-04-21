@@ -4,11 +4,11 @@ from langchain.prompts import PromptTemplate
 
 from logger import logger
 from config.settings import settings
-from utils.llm_initializer import get_openrouter_llm
+from utils.llm_initializer import get_openaicomp_model
 
 
-llm_settings = settings.openrouter
-llm = get_openrouter_llm(llm_settings.api_key, "google/gemma-3-27b-it:free")
+llm_settings = settings.openai_comp
+llm = get_openaicomp_model(llm_settings.api_key, llm_settings.model)
 
 class ContextService:
     def __init__(self, message_cap: int):
