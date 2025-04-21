@@ -8,15 +8,16 @@ from utils.llm_initializer import get_openrouter_llm
 
 
 llm_settings = settings.openrouter
-llm = get_openrouter_llm(llm_settings.api_key, "meta-llama/llama-4-scout:free")
+llm = get_openrouter_llm(llm_settings.api_key, "google/gemma-3-27b-it:free")
 
 class LLMService:
     def __init__(self):
         self.system_prompt = PromptTemplate(
             input_variables=["search_results", "question"],
-            template="""Вы — эксперт по исламскому финансированию.
+            template="""Ты — эксперт по исламскому финансированию.
             На основе результатов поиска: {search_results} предоставьте актуальную информацию,
             которая удовлетворит запросу пользователя: {question}.
+            * Если с тобой поздаровался пользователь, то не приветсвуй его в ответ.
             """
         )
 

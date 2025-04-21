@@ -14,6 +14,9 @@ class QueryRequest(BaseModel):
     chat_id: int
     question: str
 
+class GreetingRequest(BaseModel):
+    chat_id: int
+
 class QueryResponse(BaseModel):
     answer: str
     source_text: Optional[list[str]] = None

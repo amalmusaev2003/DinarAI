@@ -10,7 +10,7 @@ from services.vector_store_service import VectorStoreService
 from utils.classifier import classify_question_category, classify_question_topic
 
 
-context_service = ContextService()
+context_service = ContextService(message_cap=2)
 llm_service = LLMService()
 web_search_service = WebSearchService()
 vector_store_service = VectorStoreService()
@@ -19,8 +19,7 @@ class Assistant():
     def answer_to_query(self, chat_id: int, question: str) -> Tuple[str, list, Optional[list]]:
         logger.info(f"Question processing running...")
 
-        chat_history = context_service.get_summarized_chat_history(chat_id, messages=2)
-        
+        chat_history = context_service.get_summarized_chat_history(chat_id)
         question_with_history = f"История чата: {chat_history}\nВопрос: {question}"
         logger.info(f"Question with chat history: {question_with_history}")
 

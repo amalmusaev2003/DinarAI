@@ -10,7 +10,12 @@ class WebSearchService:
     def web_search(self, query: str) -> list[dict]:
         logger.info(f"Web-search on \"{query}\" running...")
         results = []
-        response = tavily_client.search(query, max_results=10)
+
+        try:
+            response = tavily_client.search(query, max_results=10)
+        except Exception as e:
+            logger.error(f"Error with Tavily (check your credits)")
+
         search_results = response.get("results", [])
 
         for result in search_results:

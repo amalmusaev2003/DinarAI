@@ -8,16 +8,17 @@ from utils.llm_initializer import get_openrouter_llm
 
 
 llm_settings = settings.openrouter
-llm = get_openrouter_llm(llm_settings.api_key, "meta-llama/llama-4-scout:free")
+llm = get_openrouter_llm(llm_settings.api_key, "google/gemma-3-27b-it:free")
 
 class ContextService:
-    def __init__(self):
+    def __init__(self, message_cap: int):
         try:
             redis_settings = settings.redis
             self.redis_client = redis.from_url(
                 redis_settings.url,
                 decode_responses=True
             )
+            self.message_cap = message_cap
         except Exception as e:
             logger.error(f"Redis connection error: {e}")
             exit(1)
@@ -46,15 +47,16 @@ class ContextService:
             context_history = []
         return context_history
 
-    def get_summarized_chat_history(self, chat_id: int, messages: int) -> str:
+    def get_summarized_chat_history(self, chat_id: int) -> str:
         context_history = self.get_chat_history(chat_id)
         if not context_history:
             return "Диалог пуст."
         
-        chat_summary = self._summarize_chat_history(context_history[-messages:])
+        chat_summary = self._summarize_chat_history(context_history)
         return chat_summary
-    
+
     def add_data_to_chat_history(self,  chat_id: int, question: str, answer: str) -> None:
         context_history = self.get_chat_history(chat_id)
         context_history.append((question, answer))
-        self.redis_client.setex(str(chat_id), 3600, json.dumps(context_history[-10:]))
+        self.redis_client.set(str(chat_id), json.dumps(context_history[-self.message_cap:]))
+        logger.info(f"Chat history for chat_id: {chat_id}: \n {context_history}")
