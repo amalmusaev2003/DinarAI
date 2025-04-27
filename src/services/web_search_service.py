@@ -1,4 +1,4 @@
-from tavily import TavilyClient
+from tavily import TavilyClient, UsageLimitExceededError
 
 from logger import logger
 from config.settings import settings
@@ -11,14 +11,22 @@ class WebSearchService:
         logger.info(f"Web-search on \"{query}\" running...")
         results = []
 
+        domains_to_include = [
+            "https://www.sberbank.ru/ru/person/islamic-banking"
+        ]
         try:
             response = tavily_client.search(query, max_results=10)
-        except Exception as e:
-            logger.error(f"Error with Tavily (check your credits)")
+            additional_response = tavily_client.search(query, include_domains=domains_to_include)
+        except UsageLimitExceededError as e:
+            logger.error(f"Usage limit exceeded. Please check your plan's usage limits or consider upgrading.")
 
         search_results = response.get("results", [])
+        additional_results = additional_response.get("results", [])
+
+        search_results.extend(additional_results)
 
         for result in search_results:
+            print(result.get("url", ""))
             results.append(
                 {
                     "title": result.get("title", ""),

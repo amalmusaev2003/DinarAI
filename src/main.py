@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from assistant import Assistant
-from schemas.query import QueryRequest, QueryResponse, GreetingRequest
+from schemas.query import QueryRequest, QueryResponse
 
 app = FastAPI()
 assistant = Assistant()
