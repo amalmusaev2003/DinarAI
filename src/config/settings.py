@@ -15,7 +15,7 @@ class MistralSettings(BaseSettings):
 
 class OpenAICompSettings(BaseSettings):
     api_key: str = os.getenv("OPENAICOMP_API_KEY", "")
-    model: str = "google/gemini-2.0-flash-exp"
+    model: str = "google/gemini-2.0-flash-001"
 
 class RedisSettings(BaseSettings):
     url: str = os.getenv("REDIS_URL", "redis://localhost:6379")
